@@ -49,9 +49,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     customerId = stripeCustomer.id;
     }
-
-
-
    
     // Cria a sessão de checkout do stripe
     const stripeCheckoutSession = await stripe.checkout.sessions.create({
