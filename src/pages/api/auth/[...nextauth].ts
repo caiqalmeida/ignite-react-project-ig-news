@@ -19,6 +19,7 @@ export default NextAuth({
 
       try {
         await fauna.query(
+          // Se
           q.If(
             q.Not(
               q.Exists(
@@ -28,10 +29,12 @@ export default NextAuth({
                 )
               )
             ),
+            // Então
             q.Create(
               q.Collection('users'),
               {data: { email }}
             ),
+            // Senão
             q.Get(
               q.Match(
                 q.Index('user_by_email'),

@@ -5,6 +5,7 @@ import { stripe } from '../../../services/stripe';
 export async function saveSubscription(
   subscriptionId: string,
   customerId: string,
+  createAction = false,
 ) {
   // Busca o usuário no fauna db com o customerId (stripe customer id)
   const userRef = await fauna.query(
@@ -31,10 +32,31 @@ export async function saveSubscription(
      
   }
 
-  await fauna.query(
-    q.Create(
-      q.Collection('subscriptions'),
-      { data: subscriptionData }
+  if (createAction) {
+    await fauna.query(
+      q.Create(
+        q.Collection('subscriptions'),
+        { data: subscriptionData }
+      )
     )
-  )
+  } else {
+    // Aqui utilizamos o replace em vez do update porque dessa maneira, se mudarmos
+    // os dados que temos no subscriptionData, nossa aplicação já estará pronta
+    // para lidar com essa mudança sem alterações
+    await fauna.query(
+      q.Replace(
+        q.Select(
+          "ref",
+          q.Get(
+            q.Match(
+              q.Index('subscription_by_id'),
+              subscriptionId,
+            )
+          )
+        ),
+        {data: subscriptionData}
+      )
+    )
+  }
+  
 }
